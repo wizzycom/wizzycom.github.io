@@ -6,36 +6,46 @@ author: wizzy
 comments: true
 categories: How to
 ---
-I have been looking for a way to run this utility on linux (because it is a java app) and I found <a href="https://shred.zone/cilla/page/383/setting-up-tp-link-tl-sg108e-with-linux.html">this guide</a> explaining how to achieve this.
 
-By the way, I use Arch Linux.
+Easy smart, is a configuration utility based on Java for managing TP-Link switches and it runs on windows. Due to the fact that I use only linux, I have been looking for a way to install and use this utility on my desktop.
 
-So, first, you will need to download the latest x64 Oracle JRE for linux from <a href="https://java.com/en/download/">here</a>. In my case, <strong>Linux x64</strong>.
+Googling around, I found [this website](https://shred.zone/cilla/page/383/setting-up-tp-link-tl-sg108e-with-linux.html), explaining how to run Easy smart on linux. By the way, I use Arch Linux. 
+
+So, first, you will need to download the latest [Oracle JRE](https://java.com/en/download/) for linux. In my case, Linux x64. 
 
 Create a new Java folder on your home directory and extract the Oracle JRE archive there:
-<pre>mkdir ~/Java
-tar -xvf ~/Download/jre-8u311-linux-x64.tar.gz -C ~/Java</pre>
-Then download the Easy Smart Configuration Utility from <a href="https://www.tp-link.com/us/support/download/">here</a>.
 
-<!--more-->
+```
+mkdir ~/Javatar -xvf ~/Download/jre-8u311-linux-x64.tar.gz -C ~/Java
+```
 
-First, <strong>you need to install the utility on a Windows system</strong>, in order to extract the executable file. After the installation, go to <strong>C:\Program Files (x86)\TP-LINK\Easy Smart Configuration Utility and grab Easy Smart Configuration Utility.exe</strong>.
+Then download the Easy Smart Configuration Utility from [here](https://www.tp-link.com/us/support/download). You will also need a windows system to extract the executable file (I am sure that it can be done by other means. If I find a way, I will update this guide). Install the utility on the windows machine and after the installation, go to **C:\\Program Files (x86)\\TP-LINK\\Easy Smart Configuration Utility** and grab **Easy Smart Configuration Utility.exe**.
 
-Create a new folder on your linux system user home directory, paste the <strong>Easy Smart Configuration Utility.exe</strong> and rename it to <strong>easysmart.jar</strong>
-<pre>mkdir ~/Easysmart
+Create a new folder on your linux system user home directory, paste the **Easy Smart Configuration Utility.exe** and rename it to **easysmart.jar**
+
+```
+mkdir ~/Easysmart
 (paste file)
-mv Easy Smart Configuration Utility.exe easysmart.jar</pre>
-Then, add the following lines to your .bashrc file:
-<pre># TP-Link Easysmart
+mv Easy Smart Configuration Utility.exe easysmart.jar
+```
+
+Then, add the following lines to your .bashrc file. Make sure that iptables exist on your linux system:
+
+```
+# TP-Link Easysmart
 function easysmart {
     cd ~/Easysmart
     sudo iptables -t nat -A PREROUTING -p udp -d 255.255.255.255 --dport 29809 -j DNAT --to XXX.XXX.XXX.XXX:29809
     ~/Java/jre1.8.0_311/bin/java -jar ~/Easysmart/easysmart.jar
     sudo iptables -t nat -D PREROUTING -p udp -d 255.255.255.255 --dport 29809 -j DNAT --to XXX.XXX.XXX.XXX:29809
     cd ~
-}</pre>
-The iptable commands are handling the switch discovery by adding a prerouting rule, which is removed when you exit the utility. Don't forget to replace XXX.XXX.XXX.XXX with your system's IP address.
+}
+```
 
-Lastly, by typing <strong>easysmart</strong>, the utility will execute and will search all network interfaces for a switch.
+The iptable commands are handling the switch discovery by adding a prerouting rule, which is removed when you exit the utility. Don't forget to replace **XXX.XXX.XXX.XXX** with your system's IP address.
 
+Lastly, by typing **easysmart**, the utility will execute and will search all network interfaces for a switch.
+
+```
 Good luck
+```
