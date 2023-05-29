@@ -46,6 +46,4 @@ The iptable commands are handling the switch discovery by adding a prerouting ru
 
 Lastly, by typing **easysmart**, the utility will execute and will search all network interfaces for a switch.
 
-```
 Good luck
-```
