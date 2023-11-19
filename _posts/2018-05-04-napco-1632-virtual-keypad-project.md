@@ -55,13 +55,12 @@ The panel sends all the information displayed on the keypad. My keypad is a DXR
 | 31         | 3B | 00 | 00 | 01 | 20 | 00 | 00 | 00 | 00 | 31 | 36 | 2D | 45 | 4E | 54 | 52 | 41 | 4E | 43 | 45 | 20 | 20 | 20 | 20 | 20 | 11 |
 | 1          | 6  | -  | E  | N  | T  | R  | A  | N  | C  | E  |
 | 31         | 3B | 00 | 00 | 01 | 60 | 00 | 00 | 00 | 00 | 20 | 20 | 20 | 20 | 20 | 20 | 20 | 20 | 20 | 20 | 20 | 20 | 20 | 20 | 20 | 20 | CD |
-| BLANK LINE |
+| BLANK LINE                                                                                                                                   |
 
 
 
 From the above, green HEX is the info displayed in the line. The last red byte is the checksum of the message. CheckSum8 Modulo 256 is used for checksum. The second 27 bytes indicate a blank line. Another info when the system is ready to arm. Information is displayed on both lines of the keypad :
 
-|    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 | 31 | 3B | 00 | 00 | 01 | 20 | 00 | 00 | 02 | 00 | 53 | 59 | 53 | 54 | 45 | 4D | 20 | 52 | 45 | 41 | 44 | 59 | 20 | 20 | 20 | 20 | 89 |
 | S  | Y  | S  | T  | E  | M  | R  | E  | A  | D  | Y  |
@@ -71,7 +70,6 @@ From the above, green HEX is the info displayed in the line. The last red byte i
 
 Also messages for K series keypads like K2AS is transmitted. This keypad has LCD of one line that displays 6 characters  :
 
-|    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 | 31 | 31 | 00 | 00 | 01 | 23 | 00 | 00 | 01 | 00 | 46 | 41 | 55 | 4C | 54 | 20 | 23 |
 | F  | A  | U  | L  | T  |
