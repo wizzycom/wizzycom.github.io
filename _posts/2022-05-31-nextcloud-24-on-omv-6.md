@@ -1,40 +1,36 @@
 ---
-layout: post
 title: Nextcloud 24 on OpenMediaVault 6
 date: 2022-05-31 10:26:14.000000000 +03:00
 type: post
-parent_id: '0'
-published: true
-password: ''
-status: publish
 categories: []
 tags: []
-meta:
-  _edit_last: '1'
-  ratings_users: '0'
-  ratings_score: '0'
-  ratings_average: '0'
-author:
-  login: wizzy
-  email: wizzy@wizzycom.net
-  display_name: wizzy
-  first_name: ''
-  last_name: ''
-permalink: "/fdhsafh/"
+permalink: "/2022-05-31-nextcloud-24-on-omv-6/"
 ---
-<p>As the title states. Again, this solution is without the use of docker. It is just a straight forward installation of Nextcloud 24.0.1 on OMV 6 using Nginx (php-fpm)  with PHP 7.4 that is already installed and MariaDB as our database server. In order to work on port 80 or port 443, we will have to change the OMV web ports to 8080 and 8443. You can achieve this via "System/Workbench" on the OMV web interface. This guide asumes that Nextcloud will user ports TCP/80 and TCP/443. Everything that is marked RED, needs your attention.</p>
-<p>Let's start with some packages.</p>
-<pre>apt install mariadb-server php-xml php-cli php-cgi php-mysql php-mbstring php-gd php-curl php-zip wget unzip php-imagick php-intl php-gmp php-imagick imagemagick libmagickcore-6.q16-6-extra -y</pre>
-<p><span style="font-size: 1rem;">Download nextcloud and place it on folder /var/www</span></p>
-<pre>cd /usr/src
+As the title states. Again, this solution is without the use of docker. It is just a straight forward installation of Nextcloud 24.0.1 on OMV 6 using Nginx (php-fpm)  with PHP 7.4 that is already installed and MariaDB as our database server. In order to work on port 80 or port 443, we will have to change the OMV web ports to 8080 and 8443. You can achieve this via "System/Workbench" on the OMV web interface. This guide asumes that Nextcloud will user ports TCP/80 and TCP/443. Everything that is marked RED, needs your attention.
+
+Let's start with some packages.
+
+```
+apt install mariadb-server php-xml php-cli php-cgi php-mysql php-mbstring php-gd php-curl php-zip wget unzip php-imagick php-intl php-gmp php-imagick imagemagick libmagickcore-6.q16-6-extra -y
+```
+
+Download nextcloud and place it on folder /var/www
+
+```
+cd /usr/src
 wget https://download.nextcloud.com/server/releases/nextcloud-24.0.1.zip
 unzip nextcloud-24.0.1.zip
 mv nextcloud /var/www/
 chown -R www-data:www-data /var/www/nextcloud/
-chmod -R 755 /var/www/nextcloud/</pre>
-<p><!--more-->Now, we have to create a new pool on the fpm, in order to adjust php settings for nextcloud and not mess up the OMV web part.</p>
-<p><strong>nano /etc/php/7.4/fpm/pool.d/nextcloud.conf</strong></p>
-<pre>[nextcloud]
+chmod -R 755 /var/www/nextcloud/
+```
+
+Now, we have to create a new pool on the fpm, in order to adjust php settings for nextcloud and not mess up the OMV web part.
+
+**nano /etc/php/7.4/fpm/pool.d/nextcloud.conf**
+
+```
+[nextcloud]
 user = www-data
 group = www-data
 
@@ -55,7 +51,7 @@ php_value[include_path] = ".:/usr/share/php:/var/www/nextcloud"
 php_value[upload_max_filesize] = 512M
 php_value[post_max_size] = 512M
 php_value[max_execution_time] = 300
-php_value[date.timezone] = <strong><span style="color: #ff0000;">YOUR TIMEZONE</span></strong>
+php_value[date.timezone] = YOUR TIMEZONE
 php_value[expose_php] = Off
 php_value[memory_limit] = 512M
 
@@ -64,42 +60,60 @@ php_value[opcache.interned_strings_buffer] = 64
 php_value[opcache.max_accelerated_files] = 32531
 php_value[opcache.validate_timestamps] = 0
 
-env[PATH] = /usr/local/bin:/usr/bin:/bin</pre>
-<p>To improve performance we have to install redis</p>
-<p>Install redis and make changes to config.php.</p>
-<pre>apt-get install redis-server php-redis
+env[PATH] = /usr/local/bin:/usr/bin:/bin
+```
+
+To improve performance we have to install redis
+
+Install redis and make changes to config.php.
+
+```
+apt-get install redis-server php-redis
 systemctl start redis-server
-systemctl enable redis-server</pre>
-<p><strong>nano /var/www/nextcloud/config/config.php</strong></p>
-<pre>'memcache.local' =&gt; '\\OC\\Memcache\\Redis',
-'memcache.locking' =&gt; '\\OC\\Memcache\\Redis',
-'redis' =&gt;
+systemctl enable redis-server
+```
+
+**nano /var/www/nextcloud/config/config.php**
+
+```
+'memcache.local' => '\\OC\\Memcache\\Redis',
+'memcache.locking' => '\\OC\\Memcache\\Redis',
+'redis' =>
 array(
-'host' =&gt; 'localhost',
-'port' =&gt; '6379',
-),</pre>
-<p>Set up our database.</p>
-<pre>systemctl enable mariadb
+'host' => 'localhost',
+'port' => '6379',
+),
+```
+
+Set up our database.
+
+```
+systemctl enable mariadb
 
 mysql_secure_installation
 
 mysql -u root -p
 
 CREATE DATABASE nextclouddb;
-CREATE USER 'nextclouduser'@'localhost' IDENTIFIED BY '<strong><span style="color: #ff0000;">YOURPASSWORD</span></strong>';
+CREATE USER 'nextclouduser'@'localhost' IDENTIFIED BY 'YOURPASSWORD';
 GRANT ALL ON nextclouddb.* TO 'nextclouduser'@'localhost';
 FLUSH PRIVILEGES;
-EXIT;</pre>
-<p>Then we have to create a server block from Nginx. This block has SSL enabled so prior to that, you should have SSL certificates created. I point out in bold where changes must be made and also where the SSL certificates should be declared.</p>
-<p><strong>nano /etc/nginx/sites-available/nextcloud</strong></p>
-<pre>upstream php-handler {
+EXIT;
+```
+
+Then we have to create a server block from Nginx. This block has SSL enabled so prior to that, you should have SSL certificates created. I point out in bold where changes must be made and also where the SSL certificates should be declared.
+
+**nano /etc/nginx/sites-available/nextcloud**
+
+```
+upstream php-handler {
     #server 127.0.0.1:9000;
     server unix:/run/php/php7.4-fpm-nextcloud.sock;
 }
 
 server {
     listen 80 default_server ipv6only=off;
-    <span style="color: #ff0000;"><strong>server_name myserver.mydomain.com;</strong></span>
+    server_name myserver.mydomain.com;
 
       if ($scheme = http) {
           # Force redirection to HTTPS.
@@ -109,13 +123,13 @@ server {
 
 server {
     listen 443 http2 default_server ipv6only=off ssl deferred;
-    <span style="color: #ff0000;"><strong>server_name myserver.mydomain.com;</strong></span>
+    server_name myserver.mydomain.com;
 
     # Use Mozilla's guidelines for SSL/TLS settings
     # https://mozilla.github.io/server-side-tls/ssl-config-generator/
 
-<strong><span style="color: #ff0000;">    ssl_certificate     /etc/ssl/certs/nextcloud.crt;
-    ssl_certificate_key /etc/ssl/private/nextcloud.key;</span></strong>
+    ssl_certificate     /etc/ssl/certs/nextcloud.crt;
+    ssl_certificate_key /etc/ssl/private/nextcloud.key;
 
     error_log /var/log/nginx/nextcloud_error.log error;
     access_log /var/log/nginx/nextcloud_access.log combined;
@@ -158,7 +172,7 @@ server {
     fastcgi_hide_header X-Powered-By;
 
     # Path to the root of your installation
-    <strong><span style="color: #ff0000;">root /var/www/nextcloud;</span></strong>
+    root /var/www/nextcloud;
 
     # Specify how to handle directories -- specifying `/index.php$request_uri`
     # here as the fallback means that Nginx always exhibits the desired behaviour
@@ -259,17 +273,22 @@ server {
         try_files $uri $uri/ /index.php$request_uri;
     }
 }
-</pre>
-<p>If you would like to use an unencrypted setup (<strong>without SSL</strong>) you can modify the server block as the following example:</p>
-<p><strong>nano /etc/nginx/sites-available/nextcloud</strong></p>
-<pre>upstream php-handler {
+
+```
+
+If you would like to use an unencrypted setup ( **without SSL**) you can modify the server block as the following example:
+
+**nano /etc/nginx/sites-available/nextcloud**
+
+```
+upstream php-handler {
     #server 127.0.0.1:9000;
     server unix:/run/php/php7.4-fpm-nextcloud.sock;
 }
 
 server {
     listen 80 default_server ipv6only=off;
-    <span style="color: #ff0000;"><strong>server_name myserver.mydomain.com;</strong></span>
+    server_name myserver.mydomain.com;
 
     error_log /var/log/nginx/nextcloud_error.log error;
     access_log /var/log/nginx/nextcloud_access.log combined;
@@ -304,7 +323,7 @@ server {
     fastcgi_hide_header X-Powered-By;
 
     # Path to the root of your installation
-    <strong><span style="color: #ff0000;">root /var/www/nextcloud;</span></strong>
+    root /var/www/nextcloud;
 
     # Specify how to handle directories -- specifying `/index.php$request_uri`
     # here as the fallback means that Nginx always exhibits the desired behaviour
@@ -405,23 +424,42 @@ server {
         try_files $uri $uri/ /index.php$request_uri;
     }
 }
-</pre>
-<p>Let's enable the above block.</p>
-<pre>cd /etc/nginx/sites-enabled
-ln -s ../sites-available/nextcloud nextcloud</pre>
-<p>For the Nextcloud storage location, I used a folder on my RAID storage. The installation of Nextcloud, asks for data storage path. By default, it places data files inside /var/www/nextcloud. You can skip this step, if you don't want to change the default storage path.</p>
-<pre>mkdir <span style="color: #ff0000;"><strong>/srv/dev-disk-by-id-md-name/cloud</strong></span>
-chown www-data:www-data <span style="color: #ff0000;"><strong>/srv/dev-disk-by-id-md-name/cloud</strong></span></pre>
-<p>Restart some services</p>
-<pre>systemctl restart nginx
-systemctl restart php7.4-fpm</pre>
-<p>Create cron backgroud job</p>
-<pre>crontab -e -u www-data</pre>
-<p>Add the following line</p>
-<pre>*/15 * * * * php -f /var/www/nextcloud/cron.php</pre>
-<p>Begin the installation on <strong>https://yourserveripaddress</strong></p>
-<p>On <strong>Administration &gt; Basic settings</strong>, set background jobs to cron.</p>
-<p>For any additions or suggestions, please leave a comment below</p>
-<p>&nbsp;</p>
-<p>[ratings]</p>
-<p>&nbsp;</p>
+
+```
+
+Let's enable the above block.
+
+```
+cd /etc/nginx/sites-enabled
+ln -s ../sites-available/nextcloud nextcloud
+```
+
+For the Nextcloud storage location, I used a folder on my RAID storage. The installation of Nextcloud, asks for data storage path. By default, it places data files inside /var/www/nextcloud. You can skip this step, if you don't want to change the default storage path.
+
+```
+mkdir /srv/dev-disk-by-id-md-name/cloud
+chown www-data:www-data /srv/dev-disk-by-id-md-name/cloud
+```
+
+Restart some services
+
+```
+systemctl restart nginx
+systemctl restart php7.4-fpm
+```
+
+Create cron backgroud job
+
+```
+crontab -e -u www-data
+```
+
+Add the following line
+
+```
+*/15 * * * * php -f /var/www/nextcloud/cron.php
+```
+
+Begin the installation on **https://yourserveripaddress**
+
+On **Administration > Basic settings**, set background jobs to cron.
