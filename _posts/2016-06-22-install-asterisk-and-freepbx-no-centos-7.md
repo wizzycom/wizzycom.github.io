@@ -2,6 +2,7 @@
 title: Install Asterisk and FreePBX no CentOS 7
 date: 2016-06-22 17:50:49.000000000 +03:00
 type: post
+categories:
 - How to
 tags:
 - Asterisk
