@@ -99,7 +99,6 @@ The keypad in idle, always transmits the following 4 byte message to the panel. 
 
 **Keypad 1:**
 
-|    |    |    |    |
 |:---:|:---:|:---:|:---:|
 | 21 | 44 | 01 | 66 |
 
