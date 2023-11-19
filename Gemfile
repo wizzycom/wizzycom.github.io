@@ -21,10 +21,10 @@ group :jekyll_plugins do
   gem "jekyll-feed", "~> 0.12"
   gem "jekyll-paginate", "~> 1.1"
   gem "jekyll-sitemap", "~> 1.4"
-  gem "hpricot", "~> 0.8.6"
-  gem "open_uri_redirections", "~> 0.2.1"
-  gem "safe_yaml", "~> 1.0"
-  gem "jekyll-import", "~> 0.22.0"
+#  gem "hpricot", "~> 0.8.6"
+#  gem "open_uri_redirections", "~> 0.2.1"
+#  gem "safe_yaml", "~> 1.0"
+#  gem "jekyll-import", "~> 0.22.0"
 end
 
 # Windows and JRuby does not include zoneinfo files, so bundle the tzinfo-data gem
