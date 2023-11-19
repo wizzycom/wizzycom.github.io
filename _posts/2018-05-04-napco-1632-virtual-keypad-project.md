@@ -50,12 +50,12 @@ But I will verify it again with the logic analyzer.
 
 The panel sends all the information displayed on the keypad. My keypad is a DXRP1 which has an LCD of two lines and 16 characters per line. The messages from the panel are sent per line in HEX :
 
-|            |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |
+
 |:----------:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 | 31         | 3B | 00 | 00 | 01 | 20 | 00 | 00 | 00 | 00 | 31 | 36 | 2D | 45 | 4E | 54 | 52 | 41 | 4E | 43 | 45 | 20 | 20 | 20 | 20 | 20 | 11 |
 | 1          | 6  | -  | E  | N  | T  | R  | A  | N  | C  | E  |
 | 31         | 3B | 00 | 00 | 01 | 60 | 00 | 00 | 00 | 00 | 20 | 20 | 20 | 20 | 20 | 20 | 20 | 20 | 20 | 20 | 20 | 20 | 20 | 20 | 20 | 20 | CD |
-| 1          | BL |
+| BLANK LINE |
 
 
 
@@ -82,14 +82,12 @@ Periodically the panel sends keep alive messages to the keypad. These messages a
 
 **Keypad 1:**
 
-|    |    |    |    |    |    |    |    |    |    |    |    |    |
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 | 21 | 4D | 00 | 00 | 01 | 01 | 40 | 00 | 00 | 90 | 00 | 00 | 40 |
 
 
 **Keypad 2:**
 
-|    |    |    |    |    |    |    |    |    |    |    |    |    |
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 | 22 | 4D | 00 | 00 | 01 | 01 | 40 | 00 | 00 | 90 | 00 | 00 | 41 |
 
@@ -104,7 +102,6 @@ The keypad in idle, always transmits the following 4 byte message to the panel. 
 
 **Keypad 2:**
 
-|    |    |    |    |
 |:---:|:---:|:---:|:---:|
 | 22 | 44 | 01 | 67 |
 
@@ -112,9 +109,9 @@ Again the last byte is the message checksum.
 
 There are also some messages that send date and time on the keypad but I was not able to decode them. They might update the clock on the keypads. They are sent from the panel enery 3 seconds. These messages are also 27 bytes long.
 
-|       |     |      |      |         |     |
-|:-----:|:---:|:----:|:----:|:-------:|:---:|
-| Month | Day | Year | Hour | Minutes | CRC |
+
+|:-----:|:---:|:----:|:----:|:-------:|:---:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:!
+| Month | Day | Year | Hour | Minutes | CRC |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    | CRC |
 | 31    | 3B  | 00   | 06   | 04      | 15  | 18 | 08 | 28 | 00 | 79 | 06 | 00 | 03 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | AC |
 | 31    | 3B  | 00   | 06   | 04      | 15  | 18 | 08 | 28 | 00 | 09 | 06 | 00 | 03 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 1C |
 | 31    | 3B  | 00   | 06   | 04      | 15  | 18 | 08 | 28 | 00 | 79 | 06 | 00 | 03 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | AC |
