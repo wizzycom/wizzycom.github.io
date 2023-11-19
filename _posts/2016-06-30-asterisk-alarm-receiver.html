@@ -1,0 +1,203 @@
+---
+layout: post
+title: Asterisk alarm receiver
+date: 2016-06-30 17:53:29.000000000 +03:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- How to
+tags:
+- Asterisk
+meta:
+  _edit_last: '1'
+  ratings_users: '0'
+  ratings_score: '0'
+  ratings_average: '0'
+author:
+  login: wizzy
+  email: wizzy@wizzycom.net
+  display_name: wizzy
+  first_name: ''
+  last_name: ''
+permalink: "/asterisk-alarm-receiver/"
+---
+<p><strong>WARNING : This solution is not the best way to protect your property.</strong></p>
+<p>First of all, I am not a programmer so many of you will notice my elementary skills on coding. If you have anny issues or suggestions please contact me at info[at]wizzycom[dot]net</p>
+<p>Some information about Ademco Contact ID.</p>
+<p>Ademco Contact ID is a protocol that establishes communication between a a security system and a monitoring station . The security system sends a 16-digit code to the monitoring center and the monitoring station converts this to readable information.</p>
+<p>Let's see the sections of this 16-digit code :</p>
+<p><strong>1111</strong>22<strong>3</strong>444<strong>55</strong>666<strong>7</strong></p>
+<p>The monitoring station receives the code above ( not a real example, but it is easier to understand the sections ) :<!--more--></p>
+<p><strong>Section 1</strong>. Account number. This is the account ID of the security system. This info is set by the installer.<br />
+<strong>Section 2</strong>. Message type. The value of this is 18 (preffered) or 98 (optional).<br />
+<strong>Section 3</strong>. Event qualifier. Three values =&gt; 1 ( Νew event ) 3 ( Restored event ) 6 ( Previous reported - still present ).<br />
+<strong>Section 4</strong>. Event Code. This describes the issue ( Value 401 is arm/disarm from user ).<br />
+<strong>Section 5</strong>. Partition Number. Many security systems have the ability of virtual security systems. This means that you can have two or more individual security systems in one physical system.<br />
+<strong>Section 6</strong>. Zone Number. This is the zone number.<br />
+<strong>Section 7</strong>. Checksum. This is just a value which confirms that the 16-digit code is correct.<br />
+Asterisk PBX has the ability to receive those 16-digits events and by the use of a script you are able to convert is to readable information through alarmreceiver module . How it works :</p>
+<ul>
+<li>The security system sends an event through PSTN</li>
+<li>Asterisk receives this event and executes a script</li>
+<li>The script converts the event and sends an email.</li>
+</ul>
+<p>Now for this guide, I have a security system connected to a Linksys SPA. I had some DTMF issues but the solved after setting the following on the SPA :</p>
+<p><strong>DTMF Tx Method = AVT</strong><br />
+<strong> DTMF Tx Mode = Normal</strong></p>
+<p>First we have to configure the asterisk module. So we edit the file /etc/asterisk/alarmreceiver.conf and set the following :</p>
+<pre>[general]
+
+timestampformat = %Y-%m-%d %H:%M:%S
+eventcmd = /etc/asterisk/alarm/scripts/alarm-getevent
+eventspooldir = /etc/asterisk/alarm/pending
+logindividualevents = yes
+fdtimeout = 4000
+sdtimeout = 4000
+loudness = 600</pre>
+<p>Then we have to create the folder structure</p>
+<pre>mkdir /etc/asterisk/alarm
+mkdir /etc/asterisk/alarm/pending
+mkdir /etc/asterisk/alarm/reported
+mkdir /etc/asterisk/alarm/cache
+mkdir /etc/asterisk/alarm/scripts</pre>
+<p>Create our MySQL database :</p>
+<pre>mysql -u root -p
+create database security_system DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;</pre>
+<p>Import <a href="/wp-content/uploads/2016/06/alarm.txt">this file</a> on the newly created database.</p>
+<p>Now we have two scripts. One that is executed every time a event is received ( alarm-getevent<br />
+) and another one that is executed through cron every minute ( alarm-process ).</p>
+<p><strong>/etc/asterisk/alarm/scripts/alarm-getevent</strong></p>
+<pre>#!/bin/sh
+#
+dbase='mysql -u<span style="color: #ff0000;"><strong>USER</strong></span> -p<span style="color: #ff0000;"><strong>PASSWORD</strong></span> -h<span style="color: #ff0000;"><strong>HOST</strong></span> security_system'
+
+for i in `find /etc/asterisk/alarm/pending -type f`
+do
+
+chmod 777 ${i}
+alarmevent=`cat ${i} | sed "1,/events/d" | grep -v "^$"` 
+alarmtime=`grep TIMESTAMP ${i} | cut -f2 -d=`
+
+now=`date +'%Y/%m/%d %H:%M:%S'`
+
+account=`echo $alarmevent | cut -b1-4`
+messagetype=`echo $alarmevent | cut -b5-6`
+qualifier=`echo $alarmevent | cut -b7`
+eventcode=`echo $alarmevent | cut -b8-10`
+grp=`echo $alarmevent | cut -b11-12`
+zone=`echo $alarmevent | cut -b13-15`
+chksum=`echo $alarmevent | cut -b16`
+
+dtreported=`date --date "$alarmtime" +%s`
+dtregistered=`date --date "$now" +%s`
+
+$dbase -vv -e "insert into alarm_events (alarmevent,account,messagetype,qualifier,eventcode,grp,zone,chksum,dtreported,dtregistered) values ('$alarmevent','$account','$messagetype','$qualifier','$eventcode','$grp','$zone','$chksum','$dtreported','$dtregistered')"
+
+mv ${i} /etc/asterisk/alarm/reported
+
+done</pre>
+<p>Please change <strong>USER</strong>, <strong>PASSWORD</strong>, <strong>HOST</strong> with the credentials needed to access your database.</p>
+<p><strong>/etc/asterisk/alarm/scripts/alarm-process</strong></p>
+<pre>#!/bin/sh
+#
+dbase='mysql -u<span style="color: #ff0000;"><strong>USER</strong></span> -p<span style="color: #ff0000;"><strong>PASSWORD</strong></span> -h<span style="color: #ff0000;"><strong>HOST</strong></span> security_system'
+
+recordcount=`$dbase -B --skip-column-names -e "select * from alarm_events where status = '1' order by dtreported limit 1;"`
+
+
+if [ -n "$recordcount" ]; then
+
+
+id=`echo $recordcount | cut -f1 -d' ' `
+alarmevent=`echo $recordcount | cut -f2 -d' ' `
+account=`echo $recordcount | cut -f3 -d' ' `
+messagetype=`echo $recordcount | cut -f4 -d' ' `
+qualifier=`echo $recordcount | cut -f5 -d' ' `
+eventcode=`echo $recordcount | cut -f6 -d' ' `
+grp=`echo $recordcount | cut -f7 -d' ' `
+zone=`echo $recordcount | cut -f8 -d' ' `
+
+if [ $eventcode = 401 ]
+then
+zonedescription=`$dbase -B --skip-column-names -e "select system_users.user_description from system_users where user_id = $zone"`
+else
+zonedescription=`$dbase -B --skip-column-names -e "select system_areas.area_description from system_areas where area_id = $zone"`
+fi
+
+zone=`echo $recordcount | cut -f8 -d' ' `
+chksum=`echo $recordcount | cut -f9 -d' ' `
+dtregistered=`echo $recordcount | cut -f10 -d' ' `
+dtreported=`echo $recordcount | cut -f11 -d' ' `
+
+
+eventdescription=`$dbase -B --skip-column-names -e "select event_types.call,event_types.sms,event_types.description from event_types where eventcode = $eventcode"`
+
+callaction=`echo $eventdescription | cut -f1 -d' ' `
+smsaction=`echo $eventdescription | cut -f2 -d' ' `
+description=`echo $eventdescription | cut -f3-30 -d' ' `
+
+if [ $qualifier = 1 ]
+then
+eventqualifier=New
+fi
+
+if [ $qualifier = 3 ]
+then
+eventqualifier=Restored
+fi
+
+if [ $qualifier = 6 ]
+then
+eventqualifier=Still active
+fi
+
+
+realdatereported=`date -d @$dtreported "+%d/%m/%Y %T"`
+realdateregistered=`date -d @$dtregistered "+%d/%m/%Y %T"`
+
+
+#MAIL
+
+extension=$RANDOM
+
+mailfile=/etc/asterisk/alarm/cache/event_$id.$extension
+
+echo "Hello owner" &gt;&gt; $mailfile
+echo "" &gt;&gt; $mailfile
+echo "" &gt;&gt; $mailfile
+echo "An event has occured on the security system. Please read the event description below." &gt;&gt; $mailfile
+echo "" &gt;&gt; $mailfile
+echo "" &gt;&gt; $mailfile
+echo "===================================================" &gt;&gt; $mailfile
+echo " Alarm Notification " &gt;&gt; $mailfile
+echo "===================================================" &gt;&gt; $mailfile
+echo "" &gt;&gt; $mailfile
+echo Reported at $realdatereported &gt;&gt; $mailfile
+echo Registration at $realdateregistered &gt;&gt; $mailfile
+echo "" &gt;&gt; $mailfile
+echo ID $id &gt;&gt; $mailfile
+echo Event qualifyer $eventqualifier &gt;&gt; $mailfile
+echo Partition/Group $grp &gt;&gt; $mailfile
+echo Zone $zonedescription &gt;&gt; $mailfile
+echo Event description $description &gt;&gt; $mailfile
+
+/bin/mailx -s "Alarm event - $description - $realdatereported" -r <span style="color: #ff0000;"><strong>alarm@example.com</strong></span> -S smtp="<span style="color: #ff0000;"><strong>mail.example.com</strong></span>" <span style="color: #ff0000;"><strong>user@example.com</strong></span> &lt; $mailfile
+
+updatestatus=`$dbase -e "update alarm_events set status = '0' where id = $id"`
+
+fi</pre>
+<p>Please change <strong>USER</strong>, <strong>PASSWORD</strong>, <strong>HOST</strong> with the credentials needed to access your database. Also make the appropriate email changes.</p>
+<p>Give permisions</p>
+<pre>chown asterisk:asterisk /etc/asterisk/alarm -R
+chmod +x /etc/asterisk/alarm/scripts/alarm-getevent
+chmod +x /etc/asterisk/alarm/scripts/alarm-process</pre>
+<p>Set the following line on cron via crontab -e</p>
+<pre>*/1 * * * * /etc/asterisk/alarm/scripts/alarm-process &amp;&gt; /dev/null 2&gt;&amp;1</pre>
+<p>Restart cron</p>
+<pre>systemctl restart crond</pre>
+<p>Trigger an event from the security system</p>
+<p>Good luck</p>
+<p>[ratings]</p>

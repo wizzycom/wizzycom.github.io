@@ -1,0 +1,47 @@
+---
+layout: post
+title: Traffic capture from a mikrotik device to wireshark
+date: 2017-06-15 20:24:08.000000000 +03:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- How to
+tags:
+- Mikrotik
+- Wireshark
+meta:
+  _edit_last: '1'
+  ratings_users: '0'
+  ratings_score: '0'
+  ratings_average: '0'
+author:
+  login: wizzy
+  email: wizzy@wizzycom.net
+  display_name: wizzy
+  first_name: ''
+  last_name: ''
+permalink: "/traffic-capture-from-a-mikrotik-device-to-wireshark/"
+---
+<p>Today, for troubleshooting purposes, I needed to capture traffic from a Mikrotik wireless access point that I have. Mikrotik devices have a build-in tool called <strong>Packet sniffer</strong>, which does exactly what I need but what if I had these captures on a remote PC ?</p>
+<p>Well we can accomplish this and have the captures on wireshark. All we need is network connectivity, of course, between the Mikrotik device and the PC running wireshark. <strong>I am using wireshark 2.2.7 by the way</strong>.</p>
+<p><!--more-->First we have to connect to the Mikrotik device via winbox and set some parameters to packet sniffer utility in <strong>Tools&gt;Packet Sniffer</strong>. In Streaming tab we check the option Streaming Enabled and we set the IP address of the PC running wireshark. <strong>We hit Apply</strong>.</p>
+<p><a href="https://www.wizzycom.net/wp-content/uploads/2017/06/mtik-wireshark1.png"><img class="aligncenter wp-image-116 size-medium" src="{{ site.baseurl }}/assets/2017/06/mtik-wireshark1-300x220.png" alt="" width="300" height="220" /></a></p>
+<p>Next, on the <strong>Filter tab</strong>, we set some filters, like the interface we would like to sniff, traffic direction etc. I propose to use filters because if you don't, you might cause high CPU on the mikrotik device. <strong>We hit Apply</strong>.</p>
+<p><a href="https://www.wizzycom.net/wp-content/uploads/2017/06/mtik-wireshark2.png"><img class="aligncenter wp-image-117 size-medium" src="{{ site.baseurl }}/assets/2017/06/mtik-wireshark2-300x225.png" alt="" width="300" height="225" /></a></p>
+<p>Now if we press the Start button, Mikrotik will send traffic to our server on port 37008. In order to receive only traffic from the Mikrotik device, we need to set up a filter in wireshark telling it to accept UDP traffic only for port 37008.</p>
+<p>So lets open wireshark and go to <strong>capture &gt; capture filters</strong>. Then by clicking the "<strong>+</strong>" button, a new line will appear with name New capture filter and an example filter "ip host host.example.com". Set the name to "Mikrotik capture" and the filter to "<strong>udp port 37008</strong>". Press OK.</p>
+<p><a href="https://www.wizzycom.net/wp-content/uploads/2017/06/mtik-wireshark3.png"><img class="aligncenter wp-image-118 size-medium" src="{{ site.baseurl }}/assets/2017/06/mtik-wireshark3-300x166.png" alt="" width="300" height="166" /></a></p>
+<p><a href="https://www.wizzycom.net/wp-content/uploads/2017/06/mtik-wireshark4.png"><img class="aligncenter wp-image-119 size-medium" src="{{ site.baseurl }}/assets/2017/06/mtik-wireshark4-300x166.png" alt="" width="300" height="166" /></a></p>
+<p>Due to protocol conflicts, we have to disable <strong>WCCP</strong> protocol from wireshark. This can be done from <strong>analyze &gt; enabled protocols</strong>. Search for WCCP and uncheck it. Then click OK.</p>
+<p><a href="https://www.wizzycom.net/wp-content/uploads/2017/06/mtik-wireshark7.png"><img class="aligncenter wp-image-122 size-medium" src="{{ site.baseurl }}/assets/2017/06/mtik-wireshark7-300x190.png" alt="" width="300" height="190" /></a></p>
+<p>On the main screen of wireshark, <strong>click the green flag next to "...using this filter:"</strong> and select the filter that we created earlier. Select your interface and click <strong>capture &gt; start</strong>.</p>
+<p><a href="https://www.wizzycom.net/wp-content/uploads/2017/06/mtik-wireshark5.png"><img class="aligncenter wp-image-120 size-medium" src="{{ site.baseurl }}/assets/2017/06/mtik-wireshark5-300x163.png" alt="" width="300" height="163" /></a></p>
+<p>Open again, open the Packet filter settings on windox and click start. This will send traffic to your wireshark PC.</p>
+<p>Voila !!</p>
+<p><a href="https://www.wizzycom.net/wp-content/uploads/2017/06/mtik-wireshark6.png"><img class="aligncenter wp-image-121 size-medium" src="{{ site.baseurl }}/assets/2017/06/mtik-wireshark6-300x163.png" alt="" width="300" height="163" /></a></p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>[ratings]</p>

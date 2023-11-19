@@ -1,0 +1,51 @@
+---
+layout: post
+title: Running TP-Link Easy Smart Configuration Utility on linux
+date: 2021-12-11 15:54:31.000000000 +02:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- How to
+tags: []
+meta:
+  _edit_last: '1'
+  ratings_users: '1'
+  ratings_score: '5'
+  ratings_average: '5'
+author:
+  login: wizzy
+  email: wizzy@wizzycom.net
+  display_name: wizzy
+  first_name: ''
+  last_name: ''
+permalink: "/running-tp-link-easy-smart-configuration-utility-on-linux/"
+---
+<p>I have been looking for a way to run this utility on linux (because it is a java app) and I found <a href="https://shred.zone/cilla/page/383/setting-up-tp-link-tl-sg108e-with-linux.html">this guide</a> explaining how to achieve this.</p>
+<p>By the way, I use Arch Linux.</p>
+<p>So, first, you will need to download the latest x64 Oracle JRE for linux from <a href="https://java.com/en/download/">here</a>. In my case, <strong>Linux x64</strong>.</p>
+<p>Create a new Java folder on your home directory and extract the Oracle JRE archive there:</p>
+<pre>mkdir ~/Java
+tar -xvf ~/Download/jre-8u311-linux-x64.tar.gz -C ~/Java</pre>
+<p>Then download the Easy Smart Configuration Utility from <a href="https://www.tp-link.com/us/support/download/">here</a>.</p>
+<p><!--more--></p>
+<p>First, <strong>you need to install the utility on a Windows system</strong>, in order to extract the executable file. After the installation, go to <strong>C:\Program Files (x86)\TP-LINK\Easy Smart Configuration Utility and grab Easy Smart Configuration Utility.exe</strong>.</p>
+<p>Create a new folder on your linux system user home directory, paste the <strong>Easy Smart Configuration Utility.exe</strong> and rename it to <strong>easysmart.jar</strong></p>
+<pre>mkdir ~/Easysmart
+(paste file)
+mv Easy Smart Configuration Utility.exe easysmart.jar</pre>
+<p>Then, add the following lines to your .bashrc file:</p>
+<pre># TP-Link Easysmart
+function easysmart {
+    cd ~/Easysmart
+    sudo iptables -t nat -A PREROUTING -p udp -d 255.255.255.255 --dport 29809 -j DNAT --to XXX.XXX.XXX.XXX:29809
+    ~/Java/jre1.8.0_311/bin/java -jar ~/Easysmart/easysmart.jar
+    sudo iptables -t nat -D PREROUTING -p udp -d 255.255.255.255 --dport 29809 -j DNAT --to XXX.XXX.XXX.XXX:29809
+    cd ~
+}</pre>
+<p>The iptable commands are handling the switch discovery by adding a prerouting rule, which is removed when you exit the utility. Don't forget to replace XXX.XXX.XXX.XXX with your system's IP address.</p>
+<p>Lastly, by typing <strong>easysmart</strong>, the utility will execute and will search all network interfaces for a switch.</p>
+<p>Good luck</p>
+<p>[ratings]</p>

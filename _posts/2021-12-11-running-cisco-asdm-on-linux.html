@@ -1,0 +1,50 @@
+---
+layout: post
+title: Running Cisco ASDM on linux
+date: 2021-12-11 15:36:29.000000000 +02:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- How to
+tags: []
+meta:
+  _edit_last: '1'
+  ratings_users: '0'
+  ratings_score: '0'
+  ratings_average: '0'
+author:
+  login: wizzy
+  email: wizzy@wizzycom.net
+  display_name: wizzy
+  first_name: ''
+  last_name: ''
+permalink: "/running-cisco-asdm-on-linux/"
+---
+<p>I have been looking for some months on how to do this. Searching over the internet, there many old guides that most of them do not work, except <a href="https://www.labsrc.com/running-cisco-asdm-under-linux/">this one</a>.</p>
+<p>By the way, I use Arch Linux.</p>
+<p>So, first, you will need to download the latest x64 Oracle JRE for linux from <a href="https://java.com/en/download/">here</a>. In my case, <strong>Linux x64</strong>.</p>
+<p>Create a new Java folder on your home directory and extract the Oracle JRE archive there:</p>
+<pre>mkdir ~/Java
+tar -xvf ~/Download/jre-8u311-linux-x64.tar.gz -C ~/Java</pre>
+<p>In order to connect to an ASA system, you can run the following :</p>
+<pre>~/Java/jre1.8.0_311/bin/javaws https://xxx.xxx.xxx.xxx/admin/public/asdm.jnlp</pre>
+<p>where <strong>xxx.xxx.xxx.xxx</strong> is the management IP of the ASA</p>
+<p>If the connection is successful, a desktop shortcut will be created on <strong>~/Desktop</strong>. You will, need to make a copy of this shortcut to bypass a security issue which disables the launcher after every use. Every successful connection, will create a desktop shortcut.</p>
+<p><!--more--></p>
+<p>Here, there are two options. You just decide to live with this, or disable this option and create trusted entries for every system that you connect to. I have chosen the second option, I don't want any desktop shortcuts.</p>
+<p>So, we have to make some changes to our Java environment. First, we have to disable the shortcut creation on java console by running:</p>
+<pre>~/Java/jre1.8.0_311/bin/jcontrol</pre>
+<p>On tab Advanced, select Never allow in option Shortcut creation. Then on tab security, add the ASA url as an exception e.g. <strong>https://xxx.xxx.xxx.xxx</strong></p>
+<p>If you have to many systems, or you need to exclude a subnet, you can edit the following file:</p>
+<pre>~/.java/deployment/security/exception.sites</pre>
+<p>Lastly, you can create a command-line shortcut in order to easily execute ASDM. You can find some info <a href="https://www.labsrc.com/running-cisco-asdm-under-linux/">here</a> or <a href="https://www.youtube.com/channel/UCSlW3CAwEX3yoyswZOMCFig">here</a>.</p>
+<p>This is achieved by adding the following to your user's <strong>.bashrc</strong> file:</p>
+<pre># Cisco ASDM Launch Function
+function asdm {
+~/Java/jre1.8.0_311/bin/javaws -Xnosplash -wait https://$1/admin/public/asdm.jnlp
+}</pre>
+<p>Good luck</p>
+<p>[ratings]</p>

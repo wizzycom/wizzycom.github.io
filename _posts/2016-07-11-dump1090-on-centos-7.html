@@ -1,0 +1,64 @@
+---
+layout: post
+title: Dump1090 on CentOS 7
+date: 2016-07-11 17:55:16.000000000 +03:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- How to
+tags:
+- ADS-B
+- CentOS
+- Linux
+meta:
+  _edit_last: '1'
+  ratings_users: '0'
+  ratings_score: '0'
+  ratings_average: '0'
+author:
+  login: wizzy
+  email: wizzy@wizzycom.net
+  display_name: wizzy
+  first_name: ''
+  last_name: ''
+permalink: "/dump1090-on-centos-7/"
+---
+<p>Dump1090 is an ADS-B decoder and it is used with the RTL-SDR dongle. Automatic Dependent Surveillance Broadcast or ADS-B is the system that is used by aircrafts to transmit their GPS position. Dump1090 receives this information from the  RTL-SDR dongle and prints out the location of the aircraft on google maps.</p>
+<p>This guide will cover the installation of dump1090. To work, you neet to have the RTL-SDR dongle and of course an antenna tuned to 1090MHz .<!--more--></p>
+<p>First, lets install some packages and the EPEL repository.</p>
+<pre>yum install epel-release
+yum install usbutils git gcc rtl-sdr rtl-sdr-devel libusbx-devel libusbx</pre>
+<p>Then we have to clone and compile</p>
+<pre>cd /usr/share
+git clone git://github.com/MalcolmRobb/dump1090.git
+cd  dump1090
+make</pre>
+<p>After that, we have to blacklist some modules to prevent issues with the dongle. Create file rtl-sdr-blacklist.conf on /etc/modprobe.d</p>
+<pre>nano /etc/modprobe.d/rtl-sdr-blacklist.conf</pre>
+<p>Add the following :</p>
+<pre>blacklist dvb_usb_rtl28xxu
+blacklist e4000
+blacklist rtl2832</pre>
+<p>We have to craete a systemd script to start/stop dump1090.</p>
+<pre>nano /usr/lib/systemd/system/dump1090.service</pre>
+<p>Add the following</p>
+<pre>[Unit]
+Description=dump1090
+
+[Service]
+WorkingDirectory=/usr/share/dump1090/
+ExecStart=/usr/share/dump1090/dump1090 --interactive --net --net-http-port 8080 
+StandardOutput=null
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target</pre>
+<p>Finally let's enable and start dump1090</p>
+<pre>systemctl enable dump1090.service
+systemctl start dump1090.service</pre>
+<p>Go to http://server_ip:8080. If everything is working as expected you will see the map with the aircrafts.</p>
+<p>Good luck</p>
+<p>[ratings]</p>

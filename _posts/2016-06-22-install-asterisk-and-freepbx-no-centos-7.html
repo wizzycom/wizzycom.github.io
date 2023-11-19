@@ -1,0 +1,117 @@
+---
+layout: post
+title: Install Asterisk and FreePBX no CentOS 7
+date: 2016-06-22 17:50:49.000000000 +03:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- How to
+tags:
+- Asterisk
+- CentOS
+- FreePBX
+- Linux
+meta:
+  _edit_last: '1'
+  ratings_users: '0'
+  ratings_score: '0'
+  ratings_average: '0'
+author:
+  login: wizzy
+  email: wizzy@wizzycom.net
+  display_name: wizzy
+  first_name: ''
+  last_name: ''
+permalink: "/install-asterisk-and-freepbx-no-centos-7/"
+---
+<p>We must have a frsh installation of CentOS 7 with internet access. We begin by disabling selinux because problems were observed during the installation with selinux enabled.</p>
+<pre>sed -i 's/\(^SELINUX=\).*/\SELINUX=disabled/' /etc/sysconfig/selinux
+sed -i 's/\(^SELINUX=\).*/\SELINUX=disabled/' /etc/selinux/config</pre>
+<p><!--more-->We will install the development tools because until now there are no binaries for asterisk and CentOS 7 :</p>
+<pre>yum -y groupinstall "Development Tools"</pre>
+<p>Then we will install some necessary packages :</p>
+<pre>yum -y install lynx mariadb-server mariadb php php-mysql php-mbstring tftp-server \
+httpd ncurses-devel sendmail sendmail-cf sox newt-devel libxml2-devel libtiff-devel \
+audiofile-devel gtk2-devel subversion kernel-devel git php-process crontabs cronie \
+cronie-anacron wget vim php-xml uuid-devel sqlite-devel net-tools gnutls-devel php-pear \
+unixODBC mysql-connector-odbc iksemel iksemel-devel jansson jansson-devel pjproject \
+pjproject-devel libsamplerate-devel gmime-devel</pre>
+<pre>pear install Console_Getopt</pre>
+<p>We activate our database and start the installation wizard to define root password and remote access . What you will choose on the wizard, depends on your needs:</p>
+<pre>systemctl enable mariadb.service
+systemctl start mariadb
+mysql_secure_installation</pre>
+<p>We activate our web server :</p>
+<pre>systemctl enable httpd.service
+systemctl start httpd.service</pre>
+<p>We create the Asterisk user :</p>
+<pre>adduser asterisk -M -c "Asterisk User"</pre>
+<p>Let's download the sources needed :</p>
+<pre>cd /usr/src
+wget http://downloads.asterisk.org/pub/telephony/asterisk/asterisk-13-current.tar.gz
+wget http://downloads.asterisk.org/pub/telephony/dahdi-linux-complete/dahdi-linux-complete-current.tar.gz
+wget http://mirror.freepbx.org/modules/packages/freepbx/freepbx-13.0-latest.tgz</pre>
+<p>In case that we have FXS/FXO hardware installed or we want to use conference, we should compile and install the Dahdi package :</p>
+<pre>tar xvfz dahdi-linux-complete-current.tar.gz
+cd dahdi-linux-complete-*
+make all
+make install
+make config</pre>
+<p>We compile and install the Asterisk package :</p>
+<pre>tar xvfz asterisk-13-current.tar.gz
+cd asterisk-*</pre>
+<p>Inside the contrib folder is a script that installs various necessary packages. You will notice that the script cannot find a specific package. Don't worry, it is installed by another name :</p>
+<pre>contrib/scripts/install_prereq install</pre>
+<p>Here we go!</p>
+<pre>./configure --libdir=/usr/lib64</pre>
+<p>If we would like to use MP3 files on Asterisk, we have to download the MP3 sources. There is also a script in contrib folder that does the job :</p>
+<pre>contrib/scripts/get_mp3_source.sh</pre>
+<p>We choose menuselect just to select ULAW sound packages and the format_mp3 option:</p>
+<pre>make menuselect</pre>
+<p>We press save and start the compile :</p>
+<pre>make
+make install
+make config
+ldconfig
+systemctl disable asterisk</pre>
+<p>Let's give some permissions :</p>
+<pre>chown asterisk. /var/run/asterisk
+chown -R asterisk. /etc/asterisk
+chown -R asterisk. /var/{lib,log,spool}/asterisk
+chown -R asterisk. /usr/lib64/asterisk
+chown -R asterisk. /var/www/</pre>
+<p>Some changes required by FreePBX on php.ini :</p>
+<pre>sed -i 's/\(^upload_max_filesize = \).*/\120M/' /etc/php.ini
+sed -i 's/^\(User\|Group\).*/\1 asterisk/' /etc/httpd/conf/httpd.conf
+sed -i 's/AllowOverride None/AllowOverride All/' /etc/httpd/conf/httpd.conf</pre>
+<p>We have to restart the web server for changed to take affect :</p>
+<pre>systemctl restart httpd.service</pre>
+<p>We begin installing FreePBX. FreePBX has setup wizard. It asks paths that will put the scripts, some info for the web server and the database. We just give answers according to our case :</p>
+<pre>tar xfz freepbx-13.0-latest.tgz
+cd freepbx
+./start_asterisk start
+./install</pre>
+<p>We need to create the following startup script. FreePBX does not provide a startup script :</p>
+<pre>nano /etc/systemd/system/freepbx.service
+[Unit]
+Description=FreePBX VoIP Server
+After=mariadb.service
+
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/sbin/fwconsole start
+ExecStop=/usr/sbin/fwconsole stop
+
+
+[Install]
+WantedBy=multi-user.target</pre>
+<p>When everything is done, we just activate the whole thing :</p>
+<pre>systemctl enable freepbx.service
+systemctl start freepbx.service</pre>
+<p>Good luck!!</p>
+<p>[ratings]</p>

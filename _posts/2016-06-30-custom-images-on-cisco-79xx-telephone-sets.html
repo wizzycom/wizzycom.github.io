@@ -1,0 +1,71 @@
+---
+layout: post
+title: Custom images on cisco 79XX telephone sets
+date: 2016-06-30 17:53:56.000000000 +03:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- How to
+tags:
+- Cisco
+meta:
+  _edit_last: '1'
+  ratings_users: '0'
+  ratings_score: '0'
+  ratings_average: '0'
+author:
+  login: wizzy
+  email: wizzy@wizzycom.net
+  display_name: wizzy
+  first_name: ''
+  last_name: ''
+permalink: "/custom-images-on-cisco-79xx-telephone-sets/"
+---
+<p>To be able to add images on devices, you must already have a TFTP-Server and of course <strong>the necessary .xml configuration files.</strong></p>
+<p>Every cisco telephone set has it's own demands. The image format must be on .PNG with specific dimensions</p>
+<table class="table">
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>Telephone set</strong></td>
+<td style="text-align: center;"><strong>Image dimensions (pixels)</strong></td>
+<td style="text-align: center;"><strong>Thumbnail dimensions(pixels)</strong></td>
+<td style="text-align: center;"><strong>TFTP Folder</strong></td>
+</tr>
+<tr>
+<td>7906/7911</td>
+<td style="text-align: center;">95 X 34</td>
+<td style="text-align: center;">23 X 8</td>
+<td>/Desktops/95x34x1</td>
+</tr>
+<tr>
+<td>7941/7961/7942/7962</td>
+<td style="text-align: center;">320 X 196</td>
+<td style="text-align: center;">80 X 49</td>
+<td>/Desktops/320x196x4</td>
+</tr>
+<tr>
+<td>7945/7965/7975</td>
+<td style="text-align: center;">320 X 212</td>
+<td style="text-align: center;">80 X 53</td>
+<td>/Desktops/320x212x16</td>
+</tr>
+<tr>
+<td>7970/7971</td>
+<td style="text-align: center;">320 X 212</td>
+<td style="text-align: center;">80 X 53</td>
+<td>/Desktops/320x212x12</td>
+</tr>
+</tbody>
+</table>
+<p><!--more--><br />
+Every image folder on the TFTP-Server must contail the file List.xml (e.g. /Desktops/95x34x1/List.xml) with the following contents :</p>
+<pre>&lt;CiscoIPPhoneImageList&gt;
+&lt;ImageItem Image="TFTP:Desktops/320x212x12/TN-CampusNight.png"
+URL="TFTP:Desktops/320x212x12/CampusNight.png"/&gt; 
+&lt;/CiscoIPPhoneImageList&gt;</pre>
+<p>For every custom image we add two lines among CiscoIPPhoneImageList tags. First goes the thumbnail (after Image=) and then the complete image (after URL=).</p>
+<p>If everythig go as expected in menu User Preferences &gt; Background Images you will find your custom images.</p>
+<p>[ratings]</p>

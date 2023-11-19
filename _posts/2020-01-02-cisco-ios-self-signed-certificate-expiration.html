@@ -1,0 +1,42 @@
+---
+layout: post
+title: Cisco IOS Self-Signed Certificate Expiration
+date: 2020-01-02 08:11:57.000000000 +02:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- News
+tags:
+- Cisco
+meta:
+  _edit_last: '1'
+  ratings_users: '0'
+  ratings_score: '0'
+  ratings_average: '0'
+  _wp_old_date: '2020-04-28'
+author:
+  login: wizzy
+  email: wizzy@wizzycom.net
+  display_name: wizzy
+  first_name: ''
+  last_name: ''
+permalink: "/cisco-ios-self-signed-certificate-expiration/"
+---
+<p>On Jan 1, 2020 all self signed certificates that were generated on IOS/IOS-XE platforms got expired. After that time your device will not be able to generate self signed certificates.</p>
+<p>There are some work arounds :</p>
+<ul>
+<li>Obtain a valid certificate from a 3rd part Certificate Authority</li>
+<li>Use the IOS CA Server to generate a new certificate</li>
+<li>Use OpenSSL to generate a new self-signed certificate</li>
+<li>Update your system, if possible, to a fixed SSC IOS version</li>
+</ul>
+<p>Systems affected :</p>
+<ul>
+<li>All IOS 12.x</li>
+<li>all IOS 15.x prior to 15.6(3)M7, 15.7(3)M5, 15.8(3)M3, 15.9(3)M</li>
+<li>all IOS-XE prior to 16.9.1</li>
+</ul>
+<p>You can find more information <a href="https://www.cisco.com/c/en/us/support/docs/security-vpn/public-key-infrastructure-pki/215118-ios-self-signed-certificate-expiration-o.html">here</a>.</p>

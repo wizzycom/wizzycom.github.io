@@ -1,0 +1,67 @@
+---
+layout: post
+title: LTSP on ubuntu 16.04 server
+date: 2018-02-11 17:20:53.000000000 +02:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- How to
+tags:
+- Linux
+- LTSP
+- Ubuntu
+meta:
+  _edit_last: '1'
+  ratings_users: '0'
+  ratings_score: '0'
+  ratings_average: '0'
+author:
+  login: wizzy
+  email: wizzy@wizzycom.net
+  display_name: wizzy
+  first_name: ''
+  last_name: ''
+permalink: "/ltsp-on-ubuntu-16-04-server/"
+---
+<p>LTSP (<strong>L</strong>inux <strong>T</strong>erminal <strong>S</strong>erver <strong>P</strong>roject), adds thin client support to Linux servers. Just imagine PCs without a hard drive, running linux over the network. Pretty cool!</p>
+<p>So what do we need to accomplish that ?</p>
+<p>We just need a DHCP service (with specific options like 66, 67, 17), a linux box running the  LTSP server and some client PCs connected to the same network. You will find many guides on the internet on how to install a LTSP server. All guides install the DHCP server on the same box. Also they are using DHCP proxy etc. My case has a DHCP server working on mikrotik routerOS.</p>
+<p>So, in this guide, I assume that my <strong>local network is 192.168.1.0/24</strong>, my mikrotik device is the gateway of the network and has an interface (<strong>ether1</strong>) with IP address <strong>192.168.1.1</strong> and my linux box has the ip address <strong>192.168.1.10 and runs ubuntu server 16.04</strong>.<!--more--></p>
+<p>Lets set up the DHCP first. On routerOS apply the following</p>
+<pre>/ip pool add name=lab_pool ranges=192.168.1.11-192.168.1.254
+/ip dhcp-server add name=lab interface=ether1 address-pool=lab_pool bootp-support=static
+/ip dhcp-server network add address=192.168.1.0/24 gateway=192.168.1.1 netmask=24 dns-server=8.8.8.8 domain=domain.local next-server=192.168.1.10 boot-file-name=ltsp/amd64/pxelinux.0</pre>
+<p>Now our DHCP server is ready. Lets log in to the linux box and install LTSP server with the following commands. For the server :</p>
+<pre>sudo apt-get install ltsp-server-standalone</pre>
+<p>For the client environment :</p>
+<pre>sudo ltsp-build-client</pre>
+<p>The above command will install by default an 64bit ubuntu image. <strong>If you prefer a 32bit image</strong> then run the following :</p>
+<pre>sudo ltsp-build-client --arch i386</pre>
+<p>Reboot the server and connect a client PC on the network. Set it up to boot from network. If everything is working correctly, you will see a login screen on the client PC, but you will not be able to login. This is due to a bug on the nbd-server that cannot authenticate clients accessing the network storage and there is no gnome-shell installed on the client image we created.</p>
+<p>To overcome the first issue until is fixed, we need to make some changes to files <strong>/etc/nbd-server/conf.d/ltsp_amd64.conf</strong> and <strong>/etc/nbd-server/conf.d/swap.conf</strong>. On both files, comment out the following line :</p>
+<p style="text-align: center;"><strong>authfile = /etc/ltsp/nbd-server.allow</strong></p>
+<p>For the second issue, we have to install gnome in our client image.</p>
+<p><strong>You should always follow the procedure bellow if you want to upgrade the client image or install new packages.</strong></p>
+<p>So, first we make sure that the variable LTSP_HANDLE_DAEMONS=false is active. This will prevent the server from restarting its own daemons when upgrading the chroot:</p>
+<pre>export LTSP_HANDLE_DAEMONS=false</pre>
+<p>Then we chroot to our image and we mount /proc.</p>
+<pre>sudo chroot /opt/ltsp/amd64
+<span id="line-2-2" class="anchor"></span>mount -t proc proc /proc</pre>
+<p>Now we can upgrade or install new packages, like gnome.</p>
+<pre>apt-get update &amp;&amp; apt-get dist-upgrade
+apt-get install gnome-shell</pre>
+<p>Make sure that there are no errors when you install packages. Also you might notice a message like <strong>Can not write log, openpty() failed (/dev/pts not mounted?)</strong>. This is just a cosmetic bug.</p>
+<p>After the upgrade or package installation, exit the chroot :</p>
+<pre>exit</pre>
+<p>Run the following, if there was a kernel upgrade on the client image.</p>
+<pre>sudo ltsp-update-kernels
+</pre>
+<p>Unmount /proc and rebuild the client image.</p>
+<pre>sudo umount /opt/ltsp/amd64/proc
+<span id="line-4" class="anchor"></span>sudo ltsp-update-image</pre>
+<p>Reboot any client PC to load the new image. You can login on the client PC with the user that you log in on the server linux box. On that box you can create more users and they will be able to login from the client PCs. All client data are saved on the linux box, in every user's home folder.</p>
+<p>Good luck!</p>
+<p>[ratings]</p>

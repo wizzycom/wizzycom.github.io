@@ -1,0 +1,35 @@
+---
+layout: post
+title: Examples on using command SCP
+date: 2016-06-21 17:49:44.000000000 +03:00
+type: post
+parent_id: '0'
+published: true
+password: ''
+status: publish
+categories:
+- How to
+tags:
+- Linux
+meta:
+  _edit_last: '1'
+  ratings_users: '0'
+  ratings_score: '0'
+  ratings_average: '0'
+author:
+  login: wizzy
+  email: wizzy@wizzycom.net
+  display_name: wizzy
+  first_name: ''
+  last_name: ''
+permalink: "/examples-on-using-command-scp/"
+---
+<p>The command SCP (Secure copy) allows us to copy - file transfer over SSH, providing the same level of security that SSH provides. Let's see some examples :<br />
+<!--more--></p>
+<p>Copy of the file test.txt to a remote system on path /var/www</p>
+<pre>scp test.txt your_username@remotesystem.ip:/var/www</pre>
+<p>Copy of the file test.txt which is on /usr/src to a remote system on path /var/www</p>
+<pre>scp your_username@remotesystem.ip:/var/www/test.txt /usr/src</pre>
+<p>Copy of a folder named test to a remote system on path /var/www</p>
+<pre>scp -r test your_username@remotesystem.ip:/var/www</pre>
+<p>[ratings]</p>

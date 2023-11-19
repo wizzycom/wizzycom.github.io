@@ -1,0 +1,37 @@
+---
+layout: post
+title: Connecting a cisco 7941/7961 set to an asterisk PBX
+date:
+type: post
+parent_id: '0'
+published: false
+password: ''
+status: private
+categories:
+- How to
+tags:
+- Asterisk
+- Cisco
+meta:
+  _edit_last: '1'
+author:
+  login: wizzy
+  email: wizzy@wizzycom.net
+  display_name: wizzy
+  first_name: ''
+  last_name: ''
+permalink: "/connecting-a-cisco-79417961-set-to-an-asterisk-pbx/"
+---
+<p>It is quite possible. You can achieve that in two ways. Using SIP or using SCCP (cisco proprietary).</p>
+<p>SCCP needs <a href="http://chan-sccp-b.sourceforge.net/">chan-sccp-b</a> installed on asterisk. This is a lot of work, because you have to get the asterisk source and compile chan_sccp in it. So we are going to focus on SIP.</p>
+<p>Cisco IP phones 7941 and 7961 have also a SIP firmware. You can download it directly from cisco, if you have a valid account under contract (<a href="https://software.cisco.com/download/release.html?mdfid=280083379&amp;flowid=46209&amp;softwareid=282074288&amp;release=9.4(2)SR3&amp;relind=AVAILABLE&amp;rellifecycle=&amp;reltype=latest">7941</a>/<a href="https://software.cisco.com/download/release.html?mdfid=279251499&amp;flowid=46206&amp;softwareid=282074288&amp;release=9.4(2)SR3&amp;relind=AVAILABLE&amp;rellifecycle=&amp;reltype=latest">7961</a>) or you can search on the internet. <a href="https://www.cisco.com/c/en/us/support/docs/collaboration-endpoints/unified-ip-phone-7900-series/5455-handset-to-sip.html">This link</a> has some info on converting your device from SCCP to SIP.</p>
+<p>For this guide, I am using a 7961G set running SIP firmware <strong>8.5(4) </strong>and Asterisk PBX <strong>13.14.0</strong>. Also we are going to need a valid DHCP and TFTP server. In my case, the DHCP server is running on a mikrotik device and the TFTP server is running on a linux box.</p>
+<p>I use this set up for years with no issues except BLF (busy lamp field). Asterisk BLF, at the moment, does not work with cisco devices. This is due incompatibility between Asterisk and Cisco. There is a <a href="https://issues.asterisk.org/jira/browse/ASTERISK-13145">patch</a> for Asterisk to make BLF work with 79XX ip phones, but it is still not implemented. I don't know why.. I used it once but I had issues like segmentation faults etc. Nevertheless, use it if you like but at your own risk.</p>
+<p>The goal is to create the necessary xml-style files needed by the cisco ip phone. When the ip phone starts up, the DHCP server will assign an IP address to the ip phone and also the IP address of the TFTP server, via <strong>DHCP option 150</strong>.  Then, the ip phone will download all the files needed from the TFTP server and last but not least, the ip phone will be registered on the Asterisk PBX like a normal SIP extension. The LAN addressing that we are going to use on this guide, is <strong>192.168.1.0/24</strong>. DHCP server is on <strong>192.168.1.1</strong> and TFTP server is on <strong>192.168.1.10</strong>.</p>
+<p>Cisco IP phone setup</p>
+<p>After the conversion to SIP, we have to ensure that our device will use DHCP. So after the ip phone boot we press the <strong>Settings</strong> key. Then we select from the menu <strong>Network configuration &gt; IPv4 configuration</strong> and confirm that DHCP is enabled. If it is not enabled, we have to enable this but You will notice that you cannot change it. This is because the settings are locked. You can change that by pressing <strong>* * #</strong>. Then you can make changes. Another way just to be sure, is to erase all configuration on the ip phone. You can do this by pressing the <strong>Settings key</strong>, then unlock the setting by pressing <strong>* * #</strong>, then press the softkey <strong>more</strong>, then the softkey <strong>erase</strong>.</p>
+<p>DHCP Setup</p>
+<p>Set on your DHCP server, the DHCP option 150 to reflect the ip address of your TFTP server. In our case DHCP option 150 is <strong>192.168.1.10</strong>. After that reboot the ip phone. You can do this by pressing the <strong>Settings</strong> key and then <strong>* * # * *</strong>. After the reboot, press the <strong>Settings</strong> key and go to <strong>Network configuration &gt; IPv4 configuration</strong>. Scroll down and confirm that the ip phone has an IP address and a TFTP server assigned.</p>
+<p>TFTP Setup</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
