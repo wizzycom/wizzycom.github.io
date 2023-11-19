@@ -278,6 +278,8 @@ DEPENDENCIES
   jekyll (~> 3.9)
   jekyll-feed (~> 0.12)
   jekyll-import (~> 0.22.0)
+  jekyll-paginate (~> 1.1)
+  jekyll-sitemap (~> 1.4)
   minima (~> 2.5)
   open_uri_redirections (~> 0.2.1)
   safe_yaml (~> 1.0)
