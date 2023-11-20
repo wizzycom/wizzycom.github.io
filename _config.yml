@@ -32,6 +32,14 @@ github_username:  wizzycom
 # Remote theme
 remote_theme: "mmistakes/minimal-mistakes@4.24.0"
 
+# Plugins (previously gems:)
+plugins:
+  - jekyll-paginate
+  - jekyll-sitemap
+  - jekyll-gist
+  - jekyll-feed
+  - jekyll-include-cache
+
 # Exclude from processing.
 # The following items will not be processed, by default.
 # Any item listed under the `exclude:` key here will be automatically added to
