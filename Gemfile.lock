@@ -272,6 +272,7 @@ DEPENDENCIES
   http_parser.rb (~> 0.6.0)
   jekyll-feed
   jekyll-include-cache
+  jekyll-paginate
   jekyll-redirect-from
   jekyll-remote-theme
   jekyll-target-blank
