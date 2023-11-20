@@ -16,10 +16,10 @@ minimal_mistakes_skin    : "default" # "air", "aqua", "contrast", "dark", "dirt"
 
 # Site Settings
 locale                   : "en-US"
-title                    : "WizzycomNet"
+title                    : "Site Title"
 title_separator          : "-"
 subtitle                 : # site tagline that appears below site title in masthead
-name                     : "Wizzy"
+name                     : "Your Name"
 description              : "An amazing website."
 url                      : # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
 baseurl                  : # the subpath of your site, e.g. "/blog"
@@ -62,8 +62,6 @@ atom_feed:
 search                   : # true, false (default)
 search_full_content      : # true, false (default)
 search_provider          : # lunr (default), algolia, google
-lunr:
-  search_within_pages    : # true, false (default)
 algolia:
   application_id         : # YOUR_APPLICATION_ID
   index_name             : # YOUR_INDEX_NAME
@@ -75,9 +73,8 @@ google:
 # SEO Related
 google_site_verification :
 bing_site_verification   :
-naver_site_verification  :
 yandex_site_verification :
-baidu_site_verification  :
+naver_site_verification  :
 
 # Social Sharing
 twitter:
