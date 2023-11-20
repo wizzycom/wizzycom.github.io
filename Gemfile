@@ -12,7 +12,7 @@ gem "jekyll-remote-theme"
 
 #gem "jekyll", "~> 4.3.2"
 gem "github-pages", group: :jekyll_plugins
-gem "jekyll-include-cache", group: :jekyll_plugins
+# gem "jekyll-include-cache", group: :jekyll_plugins
 
 # This is the default theme for new Jekyll sites. You may change this to anything you like.
 #gem "minima", "~> 2.5"
@@ -25,6 +25,7 @@ group :jekyll_plugins do
   gem "jekyll-feed"
   gem "jekyll-redirect-from"
   gem "jekyll-target-blank"
+  gem "jekyll-include-cache"
 end
 
 # Windows and JRuby does not include zoneinfo files, so bundle the tzinfo-data gem
