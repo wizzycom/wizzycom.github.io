@@ -20,10 +20,10 @@ title                    : "WizzycomNet"
 title_separator          : "-"
 subtitle                 : # site tagline that appears below site title in masthead
 name                     : "Wizzy"
-description              : "An amazing website."
-url                      : # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
-baseurl                  : # the subpath of your site, e.g. "/blog"
-repository               : # GitHub username/repo-name e.g. "mmistakes/minimal-mistakes"
+description              : "Just another github page, but it's mine!"
+url                      : "https://wizzyco.github.io"
+baseurl                  : "/"
+repository               : "wizzycom/wizzycom.github.io"
 teaser                   : # path of fallback teaser image, e.g. "/assets/images/500x300.png"
 logo                     : # path of logo image to display in the masthead, e.g. "/assets/images/88x88.png"
 masthead_title           : # overrides the website title displayed in the masthead, use " " for no title
@@ -106,50 +106,50 @@ analytics:
 author:
   name             : "Wizzy"
   avatar           : # path of avatar image, e.g. "/assets/images/bio-photo.jpg"
-  bio              : "I am an **amazing** person."
-  location         : "Somewhere"
+  bio              : #"I am an **amazing** person."
+  location         : #"Somewhere"
   email            :
   links:
-    - label: "Email"
-      icon: "fas fa-fw fa-envelope-square"
-      # url: "mailto:your.name@email.com"
-    - label: "Website"
-      icon: "fas fa-fw fa-link"
-      # url: "https://your-website.com"
-    - label: "Twitter"
-      icon: "fab fa-fw fa-twitter-square"
-      # url: "https://twitter.com/"
-    - label: "Facebook"
-      icon: "fab fa-fw fa-facebook-square"
-      # url: "https://facebook.com/"
+#    - label: "Email"
+#      icon: "fas fa-fw fa-envelope-square"
+#      # url: "mailto:your.name@email.com"
+#    - label: "Website"
+#      icon: "fas fa-fw fa-link"
+#      # url: "https://your-website.com"
+#    - label: "Twitter"
+#      icon: "fab fa-fw fa-twitter-square"
+#      # url: "https://twitter.com/"
+#    - label: "Facebook"
+#      icon: "fab fa-fw fa-facebook-square"
+#      # url: "https://facebook.com/"
     - label: "GitHub"
-      icon: "fab fa-fw fa-github"
-      # url: "https://github.com/"
-    - label: "Instagram"
-      icon: "fab fa-fw fa-instagram"
-      # url: "https://instagram.com/"
+      icon: "https://github.com/wizzycom"
+#      # url: "https://github.com/"
+#    - label: "Instagram"
+#      icon: "fab fa-fw fa-instagram"
+#      # url: "https://instagram.com/"
 
 # Site Footer
 footer:
   links:
-    - label: "Twitter"
-      icon: "fab fa-fw fa-twitter-square"
-      # url:
-    - label: "Facebook"
-      icon: "fab fa-fw fa-facebook-square"
-      # url:
+#    - label: "Twitter"
+#      icon: "fab fa-fw fa-twitter-square"
+#      # url:
+#    - label: "Facebook"
+#      icon: "fab fa-fw fa-facebook-square"
+#      # url:
     - label: "GitHub"
-      icon: "fab fa-fw fa-github"
-      # url:
-    - label: "GitLab"
-      icon: "fab fa-fw fa-gitlab"
-      # url:
-    - label: "Bitbucket"
-      icon: "fab fa-fw fa-bitbucket"
-      # url:
-    - label: "Instagram"
-      icon: "fab fa-fw fa-instagram"
-      # url:
+      icon: "https://github.com/wizzycom"
+#      # url:
+#    - label: "GitLab"
+#      icon: "fab fa-fw fa-gitlab"
+#      # url:
+#    - label: "Bitbucket"
+#      icon: "fab fa-fw fa-bitbucket"
+#      # url:
+#    - label: "Instagram"
+#      icon: "fab fa-fw fa-instagram"
+#      # url:
 
 
 # Reading Files
@@ -288,7 +288,7 @@ defaults:
       type: posts
     values:
       layout: single
-      author_profile: true
+      author_profile: false
       read_time: true
       comments: # true
       share: true
