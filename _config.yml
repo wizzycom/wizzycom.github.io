@@ -21,7 +21,7 @@ title_separator          : "-"
 subtitle                 : # site tagline that appears below site title in masthead
 name                     : "Wizzy"
 description              : "Just another github page, but it's mine!"
-url                      : "https://wizzyco.github.io"
+url                      : "https://wizzycom.github.io"
 baseurl                  : "/"
 repository               : "wizzycom/wizzycom.github.io"
 teaser                   : # path of fallback teaser image, e.g. "/assets/images/500x300.png"
